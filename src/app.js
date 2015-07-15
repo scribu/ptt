@@ -1,3 +1,5 @@
+var utils = require('./utils.js');
+
 // TODO: fetch from settings
 var taskList = ['Work', 'PTT', 'Reading'];
 
@@ -12,13 +14,6 @@ var state = {
 	trackingStart: null,
 };
 
-function minutesToTime(minNum) {
-	var hours = Math.floor(minNum / 60);
-	var minutes = minNum % 60;
-
-	return hours + ':' + ('0' + minutes).slice(-2);
-}
-
 function menuItemText(task) {
 	if (state.selectedTask === task) {
 		// TODO: show time since tracking started
@@ -26,11 +21,7 @@ function menuItemText(task) {
 	} else {
 		var minNum = minutesLogged[task];
 
-		if (minNum) {
-			return minutesToTime(minNum) + ' hours this week.';
-		} else {
-			return '0 hours this week.';
-		}
+		return utils.minutesToTime(minNum) + ' this week.';
 	}
 }
 
