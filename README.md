@@ -1,5 +1,6 @@
 To test:
 
 ```
-$ node test.js
+$ npm install -g mocha
+$ mocha
 ```
