@@ -36,16 +36,9 @@ function menuItems() {
 	return taskList.map(menuItem);
 }
 
-var UI = require('ui');
+var menu, splash;
 
-var menu = new UI.Menu({
-	sections: [{
-		title: 'TT',
-		items: menuItems(),
-	}]
-});
-
-menu.on('select', function(e) {
+function onMenuSelect(e) {
 	console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
 	console.log('The item is titled "' + e.item.title + '"');
 
@@ -59,6 +52,26 @@ menu.on('select', function(e) {
 	}
 
 	menu.items(0, menuItems());
-});
+}
 
-menu.show();
+var UI = require('ui');
+
+if (!taskList) {
+	splash = new UI.Card({
+		title: 'TT - No tasks',
+		subtitle: 'To start tracking, add some tasks from the settings.'
+	});
+
+	splash.show();
+} else {
+	menu = new UI.Menu({
+		sections: [{
+			title: 'TT',
+			items: menuItems(),
+		}]
+	});
+
+	menu.on('select', onMenuSelect);
+
+	menu.show();
+}
