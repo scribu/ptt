@@ -41,6 +41,7 @@ function onStateLoaded(stats) {
 
 	if (stats.last_started) {
 		controller.selectedTask = stats.last_started.project;
+		controller.startedOn = stats.last_started.started;
 	}
 
 	updateMenu();
@@ -77,10 +78,10 @@ function init() {
 	});
 }
 
-function logAction(action, project) {
+function logAction(action, project, time) {
 	var payload = {
 		project: project,
-		time: Date.now() / 1000
+		time: time
 	};
 
 	request('post', '/' + action, payload, onStateLoaded);
