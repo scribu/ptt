@@ -15,11 +15,15 @@ describe('minutesToTime', function() {
 describe('Controller', function() {
 	var Controller = require('./src/controller.js');
 
-	var controller = new Controller(['reading', 'writing'], {});
-
-	controller.selectedTask = 'writing';
+	var controller = new Controller(['reading', 'writing']);
 
 	it('should show current status', function() {
+		assert.equal('Loading...', controller.menuItemText('writing'));
+		assert.equal('Loading...', controller.menuItemText('reading'));
+
+		controller.minutesLogged = {};
+		controller.selectedTask = 'writing';
+
 		assert.equal('Tracking...', controller.menuItemText('writing'));
 		assert.equal('0h this week.', controller.menuItemText('reading'));
 	});

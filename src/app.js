@@ -1,27 +1,42 @@
+var Controller = require('./controller.js');
+var UI = require('ui');
+
 // TODO: fetch from settings
 var taskList = ['Work', 'PTT', 'Reading'];
 
-// TODO: fetch via API
-var minutesLogged = {
-	'Work': 90,
-	'PTT': 60
-};
-
-var Controller = require('./controller.js');
-
-var menu, splash;
 var controller = new Controller(taskList);
+var menu, splash;
+
+var URL_ROOT = 'http://192.168.0.143:5000';
+
+var ajax = require('ajax');
+
+function updateMenu() {
+	menu.items(0, controller.menuItems());
+}
 
 function onMenuSelect(e) {
 	console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
 	console.log('The item is titled "' + e.item.title + '"');
 
 	controller.switchTask(e.item.title);
-
-	menu.items(0, controller.menuItems());
+	updateMenu();
 }
 
-var UI = require('ui');
+function onDataLoaded(data) {
+	controller.minutesLogged = data;
+	updateMenu();
+}
+
+function loadData() {
+	ajax(
+		{ url: URL_ROOT + '/thisweek', type:'json' },
+		onDataLoaded,
+		function(error) {
+			console.log('/thisweek failed: ' + error);
+		}
+	);
+}
 
 if (!taskList) {
 	splash = new UI.Card({
@@ -41,4 +56,5 @@ if (!taskList) {
 	menu.on('select', onMenuSelect);
 
 	menu.show();
+	loadData();
 }

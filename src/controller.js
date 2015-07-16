@@ -1,8 +1,8 @@
 var minutesToTime = require('./utils.js').minutesToTime;
 
-function Controller(taskList, minutesLogged) {
+function Controller(taskList) {
 	this.tasks = taskList;
-	this.minutesLogged = minutesLogged;
+	this.minutesLogged = null;
 	this.selectedTask = null;
 	this.trackingStart = null;
 }
@@ -31,6 +31,8 @@ Controller.prototype = {
 		if (this.selectedTask === task) {
 			// TODO: show time since tracking started
 			return 'Tracking...';
+		} else if (!this.minutesLogged) {
+			return 'Loading...';
 		} else {
 			var minNum = this.minutesLogged[task];
 
