@@ -1,22 +1,13 @@
-// String formatting utility
-if (!String.prototype.format) {
-	String.prototype.format = function() {
-		var args = arguments;
-		return this.replace(/{(\d+)}/g, function(match, number) { 
-			return typeof args[number] != 'undefined' ? args[number] : match;
-		});
-	};
-}
-
 var Controller = require('./controller.js');
 var UI = require('ui');
 var ajax = require('ajax');
+var Accel = require('ui/accel');
 
 var URL_ROOT = 'http://192.168.0.143:5000';
 
 var taskList;
 var controller;
-var menu, splash;
+var menu, splashCard, errorCard;
 
 function request(method, endpoint, data, onSuccess, onError) {
 	if (typeof data === 'function') {
@@ -33,7 +24,7 @@ function request(method, endpoint, data, onSuccess, onError) {
 	};
 
 	ajax(options, onSuccess, function(error) {
-		console.log('/{} failed: {}'.format(endpoint, error));
+		console.log(endpoint + ' failed: ' + error);
 
 		if (onError) {
 			onError(error);
@@ -55,8 +46,35 @@ function onStateLoaded(stats) {
 	updateMenu();
 }
 
+function initErrorCard() {
+	errorCard = new UI.Card({
+		title: 'TT - Error',
+	});
+
+	Accel.init();
+
+	// Accel.on('tap', function(e) {
+	errorCard.on('accelTap', function(e) {
+		console.log('Tap event on axis: ' + e.axis + ' and direction: ' + e.direction);
+
+		errorCard.hide();
+		menu.show();
+
+		init();
+	});
+}
+
 function init() {
-	request('get', '/init', onStateLoaded);
+	request('get', '/init', onStateLoaded, function(error) {
+		if (!errorCard) {
+			initErrorCard();
+		}
+
+		errorCard.subtitle('Server error.\nShake to retry.');
+
+		menu.hide();
+		errorCard.show();
+	});
 }
 
 function logAction(action, project) {
@@ -80,12 +98,12 @@ function onMenuSelect(e) {
 taskList = ['Work', 'PTT', 'Reading'];
 
 if (!taskList) {
-	splash = new UI.Card({
+	splashCard = new UI.Card({
 		title: 'TT - No tasks',
 		subtitle: 'To start tracking, add some tasks from the settings.'
 	});
 
-	splash.show();
+	splashCard.show();
 } else {
 	controller = new Controller(taskList, logAction);
 
