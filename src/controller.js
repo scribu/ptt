@@ -1,9 +1,9 @@
-var minutesToTime = require('./utils.js').minutesToTime;
+var secondsToTime = require('./utils.js').secondsToTime;
 
 function Controller(taskList, logAction) {
 	this.tasks = taskList;
 	this.logAction = logAction;
-	this.minutesLogged = null;
+	this.secondsLogged = null;
 	this.selectedTask = null;
 }
 
@@ -32,12 +32,12 @@ Controller.prototype = {
 		if (this.selectedTask === task) {
 			// TODO: show time since tracking started
 			return 'Tracking...';
-		} else if (!this.minutesLogged) {
+		} else if (!this.secondsLogged) {
 			return 'Loading...';
 		} else {
-			var minNum = this.minutesLogged[task];
+			var seconds = this.secondsLogged[task];
 
-			return minutesToTime(minNum) + ' this week.';
+			return secondsToTime(seconds) + ' this week.';
 		}
 	},
 }

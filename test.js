@@ -1,14 +1,15 @@
 var assert = require('assert');
 
-describe('minutesToTime', function() {
-	var minutesToTime = require('./src/utils.js').minutesToTime;
+describe('secondsToTime', function() {
+	var secondsToTime = require('./src/utils.js').secondsToTime;
 
 	it('should format time', function() {
-		assert.equal('0h', minutesToTime(undefined));
-		assert.equal('0h', minutesToTime(0));
-		assert.equal('1h', minutesToTime(60));
-		assert.equal('1h 5m', minutesToTime(65));
-		assert.equal('2h 35m', minutesToTime(155));
+		assert.equal('0h', secondsToTime(undefined));
+		assert.equal('0h', secondsToTime(0));
+		assert.equal('1h', secondsToTime(3600));
+		assert.equal('1h 5m', secondsToTime(3600 + 5*60));
+		assert.equal('2h 32m', secondsToTime(2*3600 + 32*60));
+		assert.equal('2h 32m', secondsToTime(2*3600 + 32*60 + 3));
 	});
 });
 
@@ -21,16 +22,17 @@ describe('Controller', function() {
 		assert.equal('Loading...', controller.menuItemText('writing'));
 		assert.equal('Loading...', controller.menuItemText('reading'));
 
-		controller.minutesLogged = {};
+		controller.secondsLogged = {};
+
 		controller.selectedTask = 'writing';
 
 		assert.equal('Tracking...', controller.menuItemText('writing'));
 		assert.equal('0h this week.', controller.menuItemText('reading'));
 
-		controller.minutesLogged = {};
+		controller.secondsLogged = {'writing': 5 * 60};
 		controller.switchTask('reading');
 
-		assert.equal('0h this week.', controller.menuItemText('writing'));
+		assert.equal('0h 5m this week.', controller.menuItemText('writing'));
 		assert.equal('Tracking...', controller.menuItemText('reading'));
 	});
 });

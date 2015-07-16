@@ -1,27 +1,17 @@
-// String formatting utility
-if (!String.prototype.format) {
-	String.prototype.format = function() {
-		var args = arguments;
-		return this.replace(/{(\d+)}/g, function(match, number) { 
-			return typeof args[number] != 'undefined' ? args[number] : match;
-		});
-	};
-}
-
-exports.minutesToTime = function(minNum) {
+exports.secondsToTime = function(seconds) {
 	var hours, minutes;
 
-	if (minNum === undefined) {
+	if (seconds === undefined) {
 		hours = minutes = 0;
 	} else {
-		hours = Math.floor(minNum / 60);
-		minutes = minNum % 60;
+		hours = Math.floor(seconds / 3600);
+		minutes = Math.floor((seconds % 3600) / 60);
 	}
 
-	var str = '{0}h'.format(hours);
+	var str = hours + 'h';
 
 	if (minutes) {
-		str+= ' {0}m'.format(minutes);
+		str+= ' ' + minutes + 'm';
 	}
 
 	return str;

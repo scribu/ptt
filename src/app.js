@@ -1,3 +1,13 @@
+// String formatting utility
+if (!String.prototype.format) {
+	String.prototype.format = function() {
+		var args = arguments;
+		return this.replace(/{(\d+)}/g, function(match, number) { 
+			return typeof args[number] != 'undefined' ? args[number] : match;
+		});
+	};
+}
+
 var Controller = require('./controller.js');
 var UI = require('ui');
 var ajax = require('ajax');
@@ -8,41 +18,54 @@ var taskList;
 var controller;
 var menu, splash;
 
+function request(method, endpoint, data, onSuccess, onError) {
+	if (typeof data === 'function') {
+		onError = onSuccess;
+		onSuccess = data;
+		data = null;
+	}
+
+	var options = {
+		url: URL_ROOT + endpoint,
+		method: method,
+		type: 'json',
+		data: data
+	};
+
+	ajax(options, onSuccess, function(error) {
+		console.log('/{} failed: {}'.format(endpoint, error));
+
+		if (onError) {
+			onError(error);
+		}
+	});
+}
+
 function updateMenu() {
 	menu.items(0, controller.menuItems());
 }
 
-function onStatsLoaded(stats) {
-	controller.secondsLogged = stats;
+function onStateLoaded(stats) {
+	controller.secondsLogged = stats.this_week;
+
+	if (stats.last_started) {
+		controller.selectedTask = stats.last_started.project;
+	}
+
 	updateMenu();
 }
 
-function loadStats() {
-	var request = {
-		url: URL_ROOT + '/thisweek',
-		type: 'json',
-	};
-
-	ajax(request, onStatsLoaded, function(error) {
-		console.log('/thisweek failed: ' + error);
-	});
+function init() {
+	request('get', '/init', onStateLoaded);
 }
 
 function logAction(action, project) {
-	var request = {
-		url: URL_ROOT + '/log',
-		method: 'post',
-		type: 'json',
-		data: {
-			action: action,
-			project: project,
-			time: Date.now()
-		}
+	var payload = {
+		project: project,
+		time: Date.now() / 1000
 	};
 
-	ajax(request, onStatsLoaded, function(error) {
-		console.log('/log failed: ' + error);
-	});
+	request('post', '/' + action, payload, onStateLoaded);
 }
 
 function onMenuSelect(e) {
@@ -76,5 +99,5 @@ if (!taskList) {
 	menu.on('select', onMenuSelect);
 
 	menu.show();
-	loadStats();
+	init();
 }
