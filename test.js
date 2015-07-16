@@ -26,5 +26,11 @@ describe('Controller', function() {
 
 		assert.equal('Tracking...', controller.menuItemText('writing'));
 		assert.equal('0h this week.', controller.menuItemText('reading'));
+
+		controller.minutesLogged = {};
+		controller.switchTask('reading');
+
+		assert.equal('0h this week.', controller.menuItemText('writing'));
+		assert.equal('Tracking...', controller.menuItemText('reading'));
 	});
 });
