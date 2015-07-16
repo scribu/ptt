@@ -1,19 +1,20 @@
 var minutesToTime = require('./utils.js').minutesToTime;
 
-function Controller(taskList) {
+function Controller(taskList, logAction) {
 	this.tasks = taskList;
+	this.logAction = logAction;
 	this.minutesLogged = null;
 	this.selectedTask = null;
-	this.trackingStart = null;
 }
 
 Controller.prototype = {
 	switchTask: function(task) {
 		if (this.selectedTask === task) {
 			this.selectedTask = null;
+			this.logAction('stop', task);
 		} else {
 			this.selectedTask = task;
-			this.trackingStart = Date.now();
+			this.logAction('start', task);
 		}
 	},
 

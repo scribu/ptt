@@ -15,7 +15,7 @@ describe('minutesToTime', function() {
 describe('Controller', function() {
 	var Controller = require('./src/controller.js');
 
-	var controller = new Controller(['reading', 'writing']);
+	var controller = new Controller(['reading', 'writing'], function(){});
 
 	it('should show current status', function() {
 		assert.equal('Loading...', controller.menuItemText('writing'));
