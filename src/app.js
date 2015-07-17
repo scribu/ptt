@@ -12,15 +12,15 @@ function debug(obj) {
 	});
 }
 
-function settingsURL() {
+var controller = new Controller(Settings.option('tasks'), logAction);
+var menu, splashCard, errorCard;
+
+function onSettingsOpen(e) {
 	var options = Settings.option();
 	return URL_ROOT + '/settings?options=' + encodeURIComponent(JSON.stringify(options));
 }
 
-var controller = new Controller(Settings.option('tasks'), logAction);
-var menu, splashCard, errorCard;
-
-function onSettingsUpdate(e) {
+function onSettingsUpdated(e) {
 	if (e.failed) {
 		console.log('Configuration error: ' + e.response);
 		return;
@@ -32,11 +32,9 @@ function onSettingsUpdate(e) {
 }
 
 Settings.config(
-	{ url: settingsURL() },
-	function open(e) {
-		console.log('opening configurable: ' + e.url);
-	},
-	onSettingsUpdate
+	{ url: 'DUMMY' },
+	onSettingsOpen,
+	onSettingsUpdated
 );
 
 function request(method, endpoint, data, onSuccess, onError) {
