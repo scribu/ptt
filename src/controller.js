@@ -4,8 +4,8 @@ function now() {
 	return Date.now() / 1000;
 }
 
-function Controller(taskList, logAction) {
-	this.tasks = taskList;
+function Controller(tasks, logAction) {
+	this.tasks = tasks;
 	this.logAction = logAction;
 	this.secondsLogged = null;
 
@@ -14,6 +14,10 @@ function Controller(taskList, logAction) {
 }
 
 Controller.prototype = {
+	hasTasks: function() {
+		return this.tasks && this.tasks.length;
+	},
+
 	switchTask: function(task) {
 		if (this.selectedTask === task) {
 			this.selectedTask = null;

@@ -17,27 +17,27 @@ function settingsURL() {
 	return URL_ROOT + '/settings?options=' + encodeURIComponent(JSON.stringify(options));
 }
 
+var controller = new Controller(Settings.option('tasks'), logAction);
+var menu, splashCard, errorCard;
+
+function onSettingsUpdate(e) {
+	if (e.failed) {
+		console.log('Configuration error: ' + e.response);
+		return;
+	}
+
+	controller.tasks = e.options.tasks;
+
+	updateUI();
+}
+
 Settings.config(
 	{ url: settingsURL() },
 	function open(e) {
 		console.log('opening configurable: ' + e.url);
 	},
-	function close(e) {
-		console.log('closed configurable');
-
-		// Show the parsed response
-		console.log(JSON.stringify(e.options));
-
-		// Show the raw response if parsing failed
-		if (e.failed) {
-			console.log(e.response);
-		}
-	}
+	onSettingsUpdate
 );
-
-var taskList = Settings.option('tasks') || [];
-var controller;
-var menu, splashCard, errorCard;
 
 function request(method, endpoint, data, onSuccess, onError) {
 	if (typeof data === 'function') {
@@ -66,6 +66,19 @@ function updateMenu() {
 	menu.items(0, controller.menuItems());
 }
 
+function updateUI() {
+	if (!controller.hasTasks()) {
+		splashCard.show();
+
+		menu.hide();
+	} else {
+		splashCard.hide();
+
+		updateMenu();
+		menu.show();
+	}
+}
+
 function onStateLoaded(stats) {
 	controller.secondsLogged = stats.this_week;
 
@@ -91,11 +104,11 @@ function initErrorCard() {
 		errorCard.hide();
 		menu.show();
 
-		init();
+		loadState();
 	});
 }
 
-function init() {
+function loadState() {
 	request('get', '/init', onStateLoaded, function(error) {
 		if (!errorCard) {
 			initErrorCard();
@@ -125,25 +138,21 @@ function onMenuSelect(e) {
 	updateMenu();
 }
 
-if (!taskList.length) {
+function initUI() {
 	splashCard = new UI.Card({
 		title: 'TT - No tasks',
 		subtitle: 'Define some tasks in the settings screen.'
 	});
 
-	splashCard.show();
-} else {
-	controller = new Controller(taskList, logAction);
-
 	menu = new UI.Menu({
 		sections: [{
 			title: 'TT',
-			items: controller.menuItems(),
 		}]
 	});
 
 	menu.on('select', onMenuSelect);
-
-	menu.show();
-	init();
 }
+
+initUI();
+updateUI();
+loadState();
