@@ -101,7 +101,7 @@ taskList = ['Work', 'PTT', 'Reading'];
 if (!taskList) {
 	splashCard = new UI.Card({
 		title: 'TT - No tasks',
-		subtitle: 'To start tracking, add some tasks from the settings.'
+		subtitle: 'Define some tasks in the settings screen.'
 	});
 
 	splashCard.show();
