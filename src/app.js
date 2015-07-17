@@ -1,3 +1,4 @@
+var Settings = require('settings');
 var Controller = require('./controller.js');
 var UI = require('ui');
 var ajax = require('ajax');
@@ -5,7 +6,36 @@ var Accel = require('ui/accel');
 
 var URL_ROOT = 'http://192.168.0.143:5000';
 
-var taskList;
+function debug(obj) {
+	Object.keys(obj).forEach(function(key) {
+		console.log(key + ': ' + JSON.stringify(obj[key]));
+	});
+}
+
+function settingsURL() {
+	var options = Settings.option();
+	return URL_ROOT + '/settings?options=' + encodeURIComponent(JSON.stringify(options));
+}
+
+Settings.config(
+	{ url: settingsURL() },
+	function open(e) {
+		console.log('opening configurable: ' + e.url);
+	},
+	function close(e) {
+		console.log('closed configurable');
+
+		// Show the parsed response
+		console.log(JSON.stringify(e.options));
+
+		// Show the raw response if parsing failed
+		if (e.failed) {
+			console.log(e.response);
+		}
+	}
+);
+
+var taskList = Settings.option('tasks') || [];
 var controller;
 var menu, splashCard, errorCard;
 
@@ -95,10 +125,7 @@ function onMenuSelect(e) {
 	updateMenu();
 }
 
-// TODO: fetch from settings
-taskList = ['Work', 'PTT', 'Reading'];
-
-if (!taskList) {
+if (!taskList.length) {
 	splashCard = new UI.Card({
 		title: 'TT - No tasks',
 		subtitle: 'Define some tasks in the settings screen.'
