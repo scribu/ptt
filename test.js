@@ -36,6 +36,12 @@ describe('Controller', function() {
 		controller.switchTask('reading');
 
 		assert.equal('0h 5m this week.', controller.menuItemText('writing'));
-		assert.equal('Tracking... (0h)', controller.menuItemText('reading'));
+		assert.equal('Tracking...', controller.menuItemText('reading'));
+	});
+
+	it('should show elapsed time', function() {
+		controller.startedOn = Date.now()/1000 - 3600;
+
+		assert.equal('Tracking... (1h)', controller.menuItemText('reading'));
 	});
 });

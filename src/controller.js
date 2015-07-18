@@ -43,9 +43,15 @@ Controller.prototype = {
 
 	menuItemText: function(task) {
 		if (this.selectedTask === task) {
+			var text = 'Tracking...';
+
 			var elapsed = now() - this.startedOn;
 
-			return 'Tracking... (' + utils.secondsToTime(elapsed) + ')';
+			if (elapsed > 60) {
+				text += ' (' + utils.secondsToTime(elapsed) + ')';
+			}
+
+			return text;
 		} else if (!this.secondsLogged) {
 			return 'Loading...';
 		} else {
