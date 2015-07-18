@@ -14,6 +14,11 @@
 	<form>
 		<h3>Backend</h3>
 		<div class="form-group">
+			<label for="backend_url">URL</label>
+			<input type="url" class="form-control" id="backend_url">
+		</div>
+
+		<div class="form-group">
 			<label for="auth_key">Auth Key</label>
 			<input type="password" class="form-control" id="auth_key">
 		</div>
@@ -78,6 +83,10 @@ jQuery(function($) {
 		options.tasks.forEach(createTask);
 	}
 
+	if (options.backend_url) {
+		$('#backend_url').val(options.backend_url);
+	}
+
 	$('form').on('click', '.remove-task', function() {
 		$(this).closest('.task').remove();
 	});
@@ -110,17 +119,18 @@ jQuery(function($) {
 		return tasks;
 	}
 
-	function collectAuthKey() {
-		return $('#auth_key').val();
+	function collectBackendOptions() {
+		return {
+			'backend_url': $('#backend_url').val(),
+			'auth_key': $('#auth_key').val(),
+		}
 	}
 
 	$('form').submit(function(e) {
 		e.preventDefault();
 
-		var options = {
-			tasks: collectTasks(),
-			auth_key: collectAuthKey(),
-		};
+		var options = collectBackendOptions();
+		options.tasks = collectTasks();
 
 		var returnTo = getQueryParam('return_to', 'pebblejs://close#');
 		var newUrl = returnTo + encodeURIComponent(JSON.stringify(options));
