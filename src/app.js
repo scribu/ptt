@@ -15,7 +15,7 @@ function getOption(key) {
 	return Settings.option(key);
 }
 
-var controller = new Controller(getOption, logAction);
+var controller = new Controller(getOption, trackAction);
 var menu, splashCard, errorCard;
 
 function onSettingsOpen(e) {
@@ -69,9 +69,7 @@ function request(method, endpoint, data, onSuccess, onError) {
 			request.responseText
 		));
 
-		if (onError) {
-			onError(error, statusCode, request);
-		}
+		onError(error, statusCode, request);
 	});
 }
 
@@ -135,13 +133,19 @@ function loadState() {
 	});
 }
 
-function logAction(action, project, time) {
+function trackAction(action, project, time) {
 	var payload = {
 		project: project,
 		time: time
 	};
 
-	request('post', '/' + action, payload, onStateLoaded);
+	delete controller.errors[project];
+
+	request('post', '/' + action, payload, onStateLoaded, function(error, statusCode) {
+		controller.errors[project] = [error, statusCode];
+
+		updateMenu();
+	});
 }
 
 function onMenuSelect(e) {

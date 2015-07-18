@@ -4,30 +4,36 @@ function now() {
 	return Date.now() / 1000;
 }
 
-function Controller(getOption, logAction) {
+function Controller(getOption, trackAction) {
 	this.getOption = getOption;
-	this.logAction = logAction;
+	this.trackAction = trackAction;
+
 	this.secondsLogged = null;
 
 	this.selectedTask = null;
 	this.startedOn = null;
+
+	this.errors = {};
 }
 
 Controller.prototype = {
+	tasks: function() {
+		return this.getOption('tasks') || [];
+	},
+
 	hasTasks: function() {
-		var tasks = this.getOption('tasks');
-		return tasks && tasks.length;
+		return this.tasks().length;
 	},
 
 	switchTask: function(task) {
 		if (this.selectedTask === task) {
 			this.selectedTask = null;
 			this.startedOn = null;
-			this.logAction('stop', task, now());
+			this.trackAction('stop', task, now());
 		} else {
 			this.selectedTask = task;
 			this.startedOn = now();
-			this.logAction('start', task, this.startedOn);
+			this.trackAction('start', task, this.startedOn);
 		}
 	},
 
@@ -42,7 +48,18 @@ Controller.prototype = {
 	},
 
 	menuItemText: function(task) {
-		if (this.selectedTask === task) {
+		var errorArgs = this.errors[task];
+
+		if (errorArgs) {
+			var error = errorArgs[0];
+			var statusCode = errorArgs[1];
+
+			if (statusCode === 500) {
+				return '[Syncing error]';
+			} else {
+				return JSON.stringify(error);
+			}
+		} else if (this.selectedTask === task) {
 			var text = 'Tracking...';
 
 			var elapsed = now() - this.startedOn;

@@ -44,4 +44,10 @@ describe('Controller', function() {
 
 		assert.equal('Tracking... (1h)', controller.menuItemText('reading'));
 	});
+
+	it('should show errors', function() {
+		controller.errors['reading'] = ['<html>Internal server error', 500];
+
+		assert.equal('[Syncing error]', controller.menuItemText('reading'));
+	});
 });
