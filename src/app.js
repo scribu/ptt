@@ -4,7 +4,7 @@ var UI = require('ui');
 var ajax = require('ajax');
 var Accel = require('ui/accel');
 
-var URL_ROOT = 'http://192.168.0.143:5000';
+var BACKEND_URL = 'http://192.168.0.143:5000';
 
 function debug(obj) {
 	Object.keys(obj).forEach(function(key) {
@@ -17,7 +17,7 @@ var menu, splashCard, errorCard;
 
 function onSettingsOpen(e) {
 	var options = Settings.option();
-	return URL_ROOT + '/settings?options=' + encodeURIComponent(JSON.stringify(options));
+	return e.url + '?options=' + encodeURIComponent(JSON.stringify(options));
 }
 
 function onSettingsUpdated(e) {
@@ -32,7 +32,7 @@ function onSettingsUpdated(e) {
 }
 
 Settings.config(
-	{ url: 'DUMMY' },
+	{ url: 'http://scribu.github.io/ptt/' },
 	onSettingsOpen,
 	onSettingsUpdated
 );
@@ -45,7 +45,7 @@ function request(method, endpoint, data, onSuccess, onError) {
 	}
 
 	var options = {
-		url: URL_ROOT + endpoint,
+		url: BACKEND_URL + endpoint,
 		method: method,
 		type: 'json',
 		data: data
