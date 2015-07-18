@@ -26,13 +26,21 @@ function onSettingsUpdated(e) {
 		return;
 	}
 
+	var newAuthKey = e.options.auth_key;
+	if (newAuthKey) {
+		Settings.data('auth_key', newAuthKey);
+	}
+
+	delete e.options.auth_key;
+	Settings.option(e.options);
+
 	controller.tasks = e.options.tasks;
 
 	updateUI();
 }
 
 Settings.config(
-	{ url: 'http://scribu.github.io/ptt/' },
+	{url: 'http://scribu.github.io/ptt/', autoSave: false},
 	onSettingsOpen,
 	onSettingsUpdated
 );
@@ -46,13 +54,14 @@ function request(method, endpoint, data, onSuccess, onError) {
 
 	var options = {
 		url: BACKEND_URL + endpoint,
+		headers: {'X-Auth-Key': Settings.data('auth_key')},
 		method: method,
 		type: 'json',
 		data: data
 	};
 
 	ajax(options, onSuccess, function(error) {
-		console.log(endpoint + ' failed: ' + error);
+		console.log(endpoint + ' failed: ' + JSON.stringify(error));
 
 		if (onError) {
 			onError(error);
@@ -112,7 +121,11 @@ function loadState() {
 			initErrorCard();
 		}
 
-		errorCard.subtitle('Server error.\nShake to retry.');
+		if (error.error === 'unauthorized') {
+			errorCard.subtitle('Authorization error.');
+		} else {
+			errorCard.subtitle('Server error.\nShake to retry.');
+		}
 
 		menu.hide();
 		errorCard.show();
