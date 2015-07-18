@@ -12,7 +12,11 @@ function debug(obj) {
 	});
 }
 
-var controller = new Controller(Settings.option('tasks'), logAction);
+function getOption(key) {
+	return Settings.option(key);
+}
+
+var controller = new Controller(getOption, logAction);
 var menu, splashCard, errorCard;
 
 function onSettingsOpen(e) {
@@ -33,8 +37,6 @@ function onSettingsUpdated(e) {
 
 	delete e.options.auth_key;
 	Settings.option(e.options);
-
-	controller.tasks = e.options.tasks;
 
 	updateUI();
 }

@@ -14,9 +14,16 @@ describe('secondsToTime', function() {
 });
 
 describe('Controller', function() {
+	// mock
+	var _options = {};
+	function getOption(key) {
+		return _options[key];
+	}
+
 	var Controller = require('./src/controller.js');
 
-	var controller = new Controller(['reading', 'writing'], function(){});
+	_options.tasks = ['reading', 'writing'];
+	var controller = new Controller(getOption, function(){});
 
 	it('should show current status', function() {
 		assert.equal('Loading...', controller.menuItemText('writing'));

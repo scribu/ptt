@@ -4,8 +4,8 @@ function now() {
 	return Date.now() / 1000;
 }
 
-function Controller(tasks, logAction) {
-	this.tasks = tasks;
+function Controller(getOption, logAction) {
+	this.getOption = getOption;
 	this.logAction = logAction;
 	this.secondsLogged = null;
 
@@ -15,7 +15,8 @@ function Controller(tasks, logAction) {
 
 Controller.prototype = {
 	hasTasks: function() {
-		return this.tasks && this.tasks.length;
+		var tasks = this.getOption('tasks');
+		return tasks && tasks.length;
 	},
 
 	switchTask: function(task) {
@@ -32,7 +33,7 @@ Controller.prototype = {
 
 	menuItems: function() {
 		var that = this;
-		return this.tasks.map(function(task) {
+		return this.getOption('tasks').map(function(task) {
 			return {
 				'title': task,
 				'subtitle': that.menuItemText(task),
