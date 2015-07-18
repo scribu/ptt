@@ -11,9 +11,17 @@
 <body>
 
 <div class="container">
-	<h3>Tasks</h3>
-
 	<form>
+		<h3>Backend</h3>
+		<div class="form-group">
+			<label for="auth_key">Auth Key</label>
+			<input type="password" class="form-control" id="auth_key">
+		</div>
+
+		<h3>Tasks</h3>
+
+		<div id="tasks"></div>
+
 		<div class="buttons form-group">
 			<button id="save" type="submit" class="btn btn-primary">Save</button>
 			<button id="add-task" class="btn btn-default pull-right">Add task</button>
@@ -51,7 +59,7 @@ jQuery(function($) {
 	function createTask(taskName) {
 		var newTask = taskTemplate.clone();
 
-		newTask.insertBefore($('.buttons'));
+		newTask.appendTo($('#tasks'));
 		newTask.find('input').val(taskName);
 
 		return newTask;
@@ -90,9 +98,7 @@ jQuery(function($) {
 		}
 	});
 
-	$('form').submit(function(e) {
-		e.preventDefault();
-
+	function collectTasks() {
 		var tasks = [];
 		$('.task input').each(function() {
 			var name = $(this).val();
@@ -101,7 +107,21 @@ jQuery(function($) {
 			}
 		});
 
-		var options = {tasks: tasks};
+		return tasks;
+	}
+
+	function collectAuthKey() {
+		return $('#auth_key').val();
+	}
+
+	$('form').submit(function(e) {
+		e.preventDefault();
+
+		var options = {
+			tasks: collectTasks(),
+			auth_key: collectAuthKey(),
+		};
+
 		var returnTo = getQueryParam('return_to', 'pebblejs://close#');
 		var newUrl = returnTo + encodeURIComponent(JSON.stringify(options));
 
