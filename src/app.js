@@ -104,12 +104,7 @@ function initErrorCard() {
 		title: 'TT - Error',
 	});
 
-	Accel.init();
-
-	// Accel.on('tap', function(e) {
 	errorCard.on('accelTap', function(e) {
-		console.log('Tap event on axis: ' + e.axis + ' and direction: ' + e.direction);
-
 		errorCard.hide();
 		menu.show();
 
@@ -164,7 +159,11 @@ function initUI() {
 	});
 
 	menu.on('select', onMenuSelect);
+
+	menu.on('accelTap', updateMenu);
 }
+
+Accel.init();
 
 initUI();
 updateUI();
