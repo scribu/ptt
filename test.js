@@ -25,21 +25,17 @@ describe('Controller', function() {
 	_options.tasks = ['reading', 'writing'];
 	var controller = new Controller(getOption, function(){});
 
-	it('should show current status', function() {
+	it('should show loading status', function() {
 		assert.equal('Loading...', controller.menuItemText('writing'));
 		assert.equal('Loading...', controller.menuItemText('reading'));
+	});
 
-		controller.secondsLogged = {};
-
-		controller.selectedTask = 'writing';
-
-		assert.equal('Tracking...', controller.menuItemText('writing'));
-		assert.equal('0h this week.', controller.menuItemText('reading'));
-
+	it('should show tracking status', function() {
 		controller.secondsLogged = {'writing': 5 * 60};
+
 		controller.switchTask('reading');
 
 		assert.equal('0h 5m this week.', controller.menuItemText('writing'));
-		assert.equal('Tracking...', controller.menuItemText('reading'));
+		assert.equal('Tracking... (0h)', controller.menuItemText('reading'));
 	});
 });
