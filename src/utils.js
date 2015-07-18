@@ -1,4 +1,11 @@
-exports.secondsToTime = function(seconds) {
+function format() {
+	var args = Array.prototype.slice.call(arguments);
+	return args.shift().replace(/\{\}/g, function(){
+		return args.shift();
+	});
+}
+ 
+function secondsToTime(seconds) {
 	var hours, minutes;
 
 	if (seconds === undefined) {
@@ -8,11 +15,14 @@ exports.secondsToTime = function(seconds) {
 		minutes = Math.floor((seconds % 3600) / 60);
 	}
 
-	var str = hours + 'h';
+	var str = format('{}h', hours);
 
 	if (minutes) {
-		str+= ' ' + minutes + 'm';
+		str+= format(' {}m', minutes);
 	}
 
 	return str;
 }
+
+exports.format = format;
+exports.secondsToTime = secondsToTime;

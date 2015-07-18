@@ -3,8 +3,7 @@ var Controller = require('./controller.js');
 var UI = require('ui');
 var ajax = require('ajax');
 var Accel = require('ui/accel');
-
-var BACKEND_URL = 'http://192.168.0.143:5000';
+var format = require('./utils.js').format;
 
 function debug(obj) {
 	Object.keys(obj).forEach(function(key) {
@@ -55,18 +54,23 @@ function request(method, endpoint, data, onSuccess, onError) {
 	}
 
 	var options = {
-		url: BACKEND_URL + endpoint,
+		url: Settings.option('backend_url') + endpoint,
 		headers: {'X-Auth-Key': Settings.data('auth_key')},
 		method: method,
 		type: 'json',
 		data: data
 	};
 
-	ajax(options, onSuccess, function(error) {
-		console.log(endpoint + ' failed: ' + JSON.stringify(error));
+	ajax(options, onSuccess, function(error, statusCode, request) {
+		console.log(format('{} {} failed with status code {}: {}',
+			method.toUpperCase(),
+			options.url,
+			statusCode,
+			request.responseText
+		));
 
 		if (onError) {
-			onError(error);
+			onError(error, statusCode, request);
 		}
 	});
 }
@@ -113,12 +117,14 @@ function initErrorCard() {
 }
 
 function loadState() {
-	request('get', '/init', onStateLoaded, function(error) {
+	request('get', '/init', onStateLoaded, function(error, statusCode) {
 		if (!errorCard) {
 			initErrorCard();
 		}
 
-		if (error.error === 'unauthorized') {
+		if (statusCode === 0) {
+			errorCard.subtitle('Incorrect backend URL.');
+		} else if (error.error === 'unauthorized') {
 			errorCard.subtitle('Authorization error.');
 		} else {
 			errorCard.subtitle('Server error.\nShake to retry.');
