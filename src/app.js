@@ -94,7 +94,7 @@ function onStateLoaded(stats) {
 	controller.secondsLogged = stats.this_week;
 
 	if (stats.last_started) {
-		controller.selectedTask = stats.last_started.project;
+		controller.selectedTask = stats.last_started.task;
 		controller.startedOn = stats.last_started.started;
 	}
 
@@ -135,7 +135,7 @@ function loadState() {
 
 function trackAction(action, project, time) {
 	var payload = {
-		project: project,
+		task: project,
 		time: time
 	};
 
