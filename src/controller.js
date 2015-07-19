@@ -30,6 +30,8 @@ Controller.prototype = {
 	},
 
 	switchTask: function(task) {
+		var oldTask = this.trackingTask;
+
 		if (this.isTracking(task)) {
 			this.trackingTask = null;
 			this.startedOn = null;
@@ -39,6 +41,8 @@ Controller.prototype = {
 			this.startedOn = now();
 			this.trackAction('start', task, this.startedOn);
 		}
+
+		return oldTask;
 	},
 
 	getStatus: function(task) {

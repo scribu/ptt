@@ -1,22 +1,19 @@
 var Settings = require('settings');
-var Controller = require('./controller.js');
 var UI = require('ui');
 var ajax = require('ajax');
 var Accel = require('ui/accel');
-var format = require('./utils.js').format;
 
-function debug(obj) {
-	Object.keys(obj).forEach(function(key) {
-		console.log(key + ': ' + JSON.stringify(obj[key]));
-	});
-}
+var Controller = require('./controller.js');
+var ItemList = require('./item-list.js').ItemList;
+var format = require('./utils.js').format;
 
 function getOption(key) {
 	return Settings.option(key);
 }
 
 var controller = new Controller(getOption, trackAction);
-var menu, splashCard, errorCard;
+var itemList = new ItemList(controller);
+var splashCard, errorCard;
 
 function onSettingsOpen(e) {
 	var options = Settings.option();
@@ -73,20 +70,16 @@ function request(method, endpoint, data, onSuccess, onError) {
 	});
 }
 
-function updateMenu() {
-	menu.items(0, controller.menuItems());
-}
-
 function updateUI() {
 	if (!controller.hasTasks()) {
 		splashCard.show();
 
-		menu.hide();
+		itemList.screen.hide();
 	} else {
 		splashCard.hide();
 
-		updateMenu();
-		menu.show();
+		itemList.update();
+		itemList.screen.show();
 	}
 }
 
@@ -98,7 +91,7 @@ function onStateLoaded(stats) {
 		controller.startedOn = stats.last_started.started;
 	}
 
-	updateMenu();
+	itemList.update();
 }
 
 function initErrorCard() {
@@ -108,7 +101,7 @@ function initErrorCard() {
 
 	errorCard.on('accelTap', function(e) {
 		errorCard.hide();
-		menu.show();
+		itemList.screen.show();
 
 		loadState();
 	});
@@ -128,7 +121,7 @@ function loadState() {
 			errorCard.subtitle('Server error.\nShake to retry.');
 		}
 
-		menu.hide();
+		itemList.screen.hide();
 		errorCard.show();
 	});
 }
@@ -144,37 +137,16 @@ function trackAction(action, project, time) {
 	request('post', '/' + action, payload, onStateLoaded, function(error, statusCode) {
 		controller.errors[project] = [error, statusCode];
 
-		updateMenu();
+		itemList.update();
 	});
-}
-
-function onMenuSelect(e) {
-	console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-	console.log('The item is titled "' + e.item.title + '"');
-
-	controller.switchTask(e.item.title);
-	updateMenu();
-}
-
-function initUI() {
-	splashCard = new UI.Card({
-		title: 'TT - No tasks',
-		subtitle: 'Define some tasks in the settings screen.'
-	});
-
-	menu = new UI.Menu({
-		sections: [{
-			title: 'TT',
-		}]
-	});
-
-	menu.on('select', onMenuSelect);
-
-	menu.on('accelTap', updateMenu);
 }
 
 Accel.init();
 
-initUI();
+splashCard = new UI.Card({
+	title: 'TT - No tasks',
+	subtitle: 'Define some tasks in the settings screen.'
+});
+
 updateUI();
 loadState();

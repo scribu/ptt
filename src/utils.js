@@ -1,3 +1,15 @@
+function mapObj(obj, callback) {
+	Object.keys(obj).forEach(function(key) {
+		callback(key, obj[key]);
+	});
+}
+
+function debug(obj) {
+	mapObj(obj, function(key, value) {
+		console.log(key + ': ' + JSON.stringify(value));
+	});
+}
+
 function format() {
 	var args = Array.prototype.slice.call(arguments);
 	return args.shift().replace(/\{\}/g, function(){
@@ -24,5 +36,7 @@ function secondsToTime(seconds) {
 	return str;
 }
 
+exports.mapObj = mapObj;
 exports.format = format;
+exports.debug = debug;
 exports.secondsToTime = secondsToTime;
