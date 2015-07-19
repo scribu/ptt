@@ -81,9 +81,9 @@ Item.prototype = {
 		utils.mapObj(this.elems, function(key, elem) {
 			var position = elem.position();
 
-			position.y += amount;
+			var newPosition = new UI.Vector2(position.x, position.y + amount);
 
-			elem.animate('position', position);
+			elem.animate('position', newPosition);
 		});
 	},
 
