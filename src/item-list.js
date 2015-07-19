@@ -193,13 +193,13 @@ ItemList.prototype = {
 
 			position.y += amount;
 
-			elem.position(position);
-		});		
+			elem.animate('position', position);
+		});
 	},
 
 	onUpDown: function(amount, indexAdd) {
 		this.changeHighlight(indexAdd);
-		// this.scroll(amount);
+		this.scroll(amount);
 	},
 
 	onClickUp: function(e) {
