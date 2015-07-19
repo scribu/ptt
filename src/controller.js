@@ -10,7 +10,7 @@ function Controller(getOption, trackAction) {
 
 	this.secondsLogged = null;
 
-	this.selectedTask = null;
+	this.trackingTask = null;
 	this.startedOn = null;
 
 	this.errors = {};
@@ -25,38 +25,23 @@ Controller.prototype = {
 		return this.tasks().length;
 	},
 
+	isTracking: function(task) {
+		return this.trackingTask === task;
+	},
+
 	switchTask: function(task) {
-		if (this.selectedTask === task) {
-			this.selectedTask = null;
+		if (this.isTracking(task)) {
+			this.trackingTask = null;
 			this.startedOn = null;
 			this.trackAction('stop', task, now());
 		} else {
-			this.selectedTask = task;
+			this.trackingTask = task;
 			this.startedOn = now();
 			this.trackAction('start', task, this.startedOn);
 		}
 	},
 
-	menuItems: function() {
-		var that = this;
-		return this.getOption('tasks').map(function(task) {
-			return {
-				'title': task,
-				'subtitle': that.menuItemText(task),
-				'icon': that.menuItemIcon(task),
-			};
-		});
-	},
-
-	menuItemIcon: function(task) {
-		if (this.selectedTask === task) {
-			return 'images/record.png';
-		} else {
-			return null;
-		}
-	},
-
-	menuItemText: function(task) {
+	getStatus: function(task) {
 		var errorArgs = this.errors[task];
 
 		if (errorArgs) {
@@ -73,8 +58,8 @@ Controller.prototype = {
 		} else {
 			var seconds = this.secondsLogged[task] || 0;
 
-			if (this.selectedTask === task) {
-				var elapsed = now() - (this.startedOn || 0);
+			if (this.isTracking(task)) {
+				var elapsed = now() - this.startedOn;
 				seconds += elapsed;
 			}
 

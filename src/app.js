@@ -94,7 +94,7 @@ function onStateLoaded(stats) {
 	controller.secondsLogged = stats.this_week;
 
 	if (stats.last_started) {
-		controller.selectedTask = stats.last_started.task;
+		controller.trackingTask = stats.last_started.task;
 		controller.startedOn = stats.last_started.started;
 	}
 

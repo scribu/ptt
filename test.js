@@ -26,8 +26,8 @@ describe('Controller', function() {
 	var controller = new Controller(getOption, function(){});
 
 	it('should show loading status', function() {
-		assert.equal('Loading...', controller.menuItemText('writing'));
-		assert.equal('Loading...', controller.menuItemText('reading'));
+		assert.equal('Loading...', controller.getStatus('writing'));
+		assert.equal('Loading...', controller.getStatus('reading'));
 	});
 
 	it('should show tracking status', function() {
@@ -35,22 +35,19 @@ describe('Controller', function() {
 
 		controller.switchTask('reading');
 
-		assert.equal('Week: 0h 5m', controller.menuItemText('writing'));
-		assert.equal('Week: 0h', controller.menuItemText('reading'));
-
-		assert.equal(null, controller.menuItemIcon('writing'));
-		assert.equal('images/record.png', controller.menuItemIcon('reading'));
+		assert.equal('Week: 0h 5m', controller.getStatus('writing'));
+		assert.equal('Week: 0h', controller.getStatus('reading'));
 	});
 
 	it('should show elapsed time', function() {
 		controller.startedOn = Date.now()/1000 - 3600;
 
-		assert.equal('Week: 1h', controller.menuItemText('reading'));
+		assert.equal('Week: 1h', controller.getStatus('reading'));
 	});
 
 	it('should show errors', function() {
 		controller.errors['reading'] = ['<html>Internal server error', 500];
 
-		assert.equal('[Syncing error]', controller.menuItemText('reading'));
+		assert.equal('[Syncing error]', controller.getStatus('reading'));
 	});
 });
