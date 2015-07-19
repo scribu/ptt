@@ -77,6 +77,16 @@ Item.prototype = {
 		});
 	},
 
+	scroll: function(amount) {
+		utils.mapObj(this.elems, function(key, elem) {
+			var position = elem.position();
+
+			position.y += amount;
+
+			elem.animate('position', position);
+		});
+	},
+
 	update: function(status, selected, tracking) {
 		this.elems.subtitle.text(status);
 
@@ -182,18 +192,8 @@ ItemList.prototype = {
 	},
 
 	scroll: function(amount) {
-		var self = this;
-
-		this.screen.each(function(elem) {
-			if (elem === self.background) {
-				return;
-			}
-
-			var position = elem.position();
-
-			position.y += amount;
-
-			elem.animate('position', position);
+		this.items.forEach(function(item) {
+			item.scroll(amount);
 		});
 	},
 
