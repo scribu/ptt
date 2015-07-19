@@ -43,8 +43,17 @@ Controller.prototype = {
 			return {
 				'title': task,
 				'subtitle': that.menuItemText(task),
+				'icon': that.menuItemIcon(task),
 			};
 		});
+	},
+
+	menuItemIcon: function(task) {
+		if (this.selectedTask === task) {
+			return 'ICON_TRACKING';
+		} else {
+			return 'ICON_NOT_TRACKING';
+		}
 	},
 
 	menuItemText: function(task) {
@@ -59,22 +68,17 @@ Controller.prototype = {
 			} else {
 				return JSON.stringify(error);
 			}
-		} else if (this.selectedTask === task) {
-			var text = 'Tracking...';
-
-			var elapsed = now() - this.startedOn;
-
-			if (elapsed > 60) {
-				text += ' (' + utils.secondsToTime(elapsed) + ')';
-			}
-
-			return text;
 		} else if (!this.secondsLogged) {
 			return 'Loading...';
 		} else {
-			var seconds = this.secondsLogged[task];
+			var seconds = this.secondsLogged[task] || 0;
 
-			return utils.secondsToTime(seconds) + ' this week.';
+			if (this.selectedTask === task) {
+				var elapsed = now() - (this.startedOn || 0);
+				seconds += elapsed;
+			}
+
+			return 'Week: ' + utils.secondsToTime(seconds);
 		}
 	},
 }

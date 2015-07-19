@@ -28,6 +28,16 @@
                 "file": "fonts/UbuntuMono-Regular.ttf",
                 "name": "MONO_FONT_14",
                 "type": "font"
+            },
+            {
+                "file": "images/record.png",
+                "name": "ICON_TRACKING",
+                "type": "png"
+            },
+            {
+                "file": "images/record-outline.png",
+                "name": "ICON_NOT_TRACKING",
+                "type": "png"
             }
         ]
     },

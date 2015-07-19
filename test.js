@@ -35,14 +35,17 @@ describe('Controller', function() {
 
 		controller.switchTask('reading');
 
-		assert.equal('0h 5m this week.', controller.menuItemText('writing'));
-		assert.equal('Tracking...', controller.menuItemText('reading'));
+		assert.equal('Week: 0h 5m', controller.menuItemText('writing'));
+		assert.equal('Week: 0h', controller.menuItemText('reading'));
+
+		assert.equal('ICON_NOT_TRACKING', controller.menuItemIcon('writing'));
+		assert.equal('ICON_TRACKING', controller.menuItemIcon('reading'));
 	});
 
 	it('should show elapsed time', function() {
 		controller.startedOn = Date.now()/1000 - 3600;
 
-		assert.equal('Tracking... (1h)', controller.menuItemText('reading'));
+		assert.equal('Week: 1h', controller.menuItemText('reading'));
 	});
 
 	it('should show errors', function() {
