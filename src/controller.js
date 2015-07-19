@@ -50,9 +50,9 @@ Controller.prototype = {
 
 	menuItemIcon: function(task) {
 		if (this.selectedTask === task) {
-			return 'ICON_TRACKING';
+			return 'images/record.png';
 		} else {
-			return 'ICON_NOT_TRACKING';
+			return null;
 		}
 	},
 

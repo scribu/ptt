@@ -38,8 +38,8 @@ describe('Controller', function() {
 		assert.equal('Week: 0h 5m', controller.menuItemText('writing'));
 		assert.equal('Week: 0h', controller.menuItemText('reading'));
 
-		assert.equal('ICON_NOT_TRACKING', controller.menuItemIcon('writing'));
-		assert.equal('ICON_TRACKING', controller.menuItemIcon('reading'));
+		assert.equal(null, controller.menuItemIcon('writing'));
+		assert.equal('images/record.png', controller.menuItemIcon('reading'));
 	});
 
 	it('should show elapsed time', function() {
