@@ -12,8 +12,52 @@ function getOption(key) {
 }
 
 var controller = new Controller(getOption, trackAction);
-var itemList = new ItemList(controller);
+var itemList;
 var splashCard, errorCard;
+
+function initItemList() {
+	var screen = new UI.Window();
+	itemList = new ItemList(controller, screen);
+
+	screen.on('click', 'up', itemList.onClickUp.bind(itemList));
+	screen.on('click', 'down', itemList.onClickDown.bind(itemList));
+	screen.on('click', 'select', itemList.onSelect.bind(itemList));
+
+	screen.on('accelTap', loadState);
+}
+
+function initSplashCard() {
+	splashCard = new UI.Card({
+		title: 'TT - No tasks',
+		subtitle: 'Define some tasks in the settings screen.'
+	});
+}
+
+function initErrorCard() {
+	errorCard = new UI.Card({
+		title: 'TT - Error',
+	});
+
+	errorCard.on('accelTap', function(e) {
+		errorCard.hide();
+		itemList.screen.show();
+
+		loadState();
+	});
+}
+
+function updateUI() {
+	if (!controller.hasTasks()) {
+		splashCard.show();
+
+		itemList.screen.hide();
+	} else {
+		splashCard.hide();
+
+		itemList.repopulate();
+		itemList.screen.show();
+	}
+}
 
 function onSettingsOpen(e) {
 	var options = Settings.option();
@@ -70,19 +114,6 @@ function request(method, endpoint, data, onSuccess, onError) {
 	});
 }
 
-function updateUI() {
-	if (!controller.hasTasks()) {
-		splashCard.show();
-
-		itemList.screen.hide();
-	} else {
-		splashCard.hide();
-
-		itemList.repopulate();
-		itemList.screen.show();
-	}
-}
-
 function onStateLoaded(stats) {
 	controller.secondsLogged = stats.this_week;
 
@@ -93,19 +124,6 @@ function onStateLoaded(stats) {
 
 	itemList.update();
 	itemList.screen.show();
-}
-
-function initErrorCard() {
-	errorCard = new UI.Card({
-		title: 'TT - Error',
-	});
-
-	errorCard.on('accelTap', function(e) {
-		errorCard.hide();
-		itemList.screen.show();
-
-		loadState();
-	});
 }
 
 function loadState() {
@@ -145,10 +163,7 @@ function trackAction(action, project, time) {
 
 Accel.init();
 
-splashCard = new UI.Card({
-	title: 'TT - No tasks',
-	subtitle: 'Define some tasks in the settings screen.'
-});
-
+initItemList();
+initSplashCard();
 updateUI();
 loadState();

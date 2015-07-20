@@ -106,27 +106,29 @@ Item.prototype = {
 };
 
 
-function ItemList(controller) {
+function ItemList(controller, screen) {
 	this.controller = controller;
 
 	this.items = [];
-
-	this.initScreen();
-
 	this.cursorIndex = 0;
+
+	this.screen = screen;
+	this.initBackground();
 }
 
 ItemList.prototype = {
 
-	initScreen: function() {
-		this.screen = new UI.Window();
+	indexFromTask: function(task) {
+		for (var i=0; i<this.items.length; i++) {
+			if (this.items[i].task === task) {
+				return i;
+			}
+		}
 
-		this.screen.on('click', 'up', this.onClickUp.bind(this));
-		this.screen.on('click', 'down', this.onClickDown.bind(this));
-		this.screen.on('click', 'select', this.onSelect.bind(this));
+		return -1;
+	},
 
-		this.screen.on('accelTap', this.update.bind(this));
-
+	initBackground: function() {
 		this.background = new UI.Rect({
 			backgroundColor: BACKGROUND_COLOR,
 			size: new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -218,16 +220,6 @@ ItemList.prototype = {
 		}
 
 		this.onUpDown(-ITEM_HEIGHT, +1);
-	},
-
-	indexFromTask: function(task) {
-		for (var i=0; i<this.items.length; i++) {
-			if (this.items[i].task === task) {
-				return i;
-			}
-		}
-
-		return -1;
 	},
 
 	onSelect: function(e) {
