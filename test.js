@@ -1,4 +1,6 @@
-var assert = require('assert');
+var chai = require('chai');
+chai.config.includeStack = true;
+var assert = chai.assert;
 
 describe('secondsToTime', function() {
 	var secondsToTime = require('./src/utils.js').secondsToTime;
