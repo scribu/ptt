@@ -177,10 +177,14 @@ ItemList.prototype = {
 		this.items = this.controller.tasks().map(this.createItem.bind(this));
 	},
 
-	update: function() {
+	repopulate: function() {
 		this.clear();
+		this.cursorIndex = 0;
 		this.populate();
-		this.screen.show();
+	},
+
+	update: function() {
+		this.items.forEach(this.updateItem.bind(this));
 	},
 
 	changeHighlight: function(indexAdd) {

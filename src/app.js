@@ -78,7 +78,7 @@ function updateUI() {
 	} else {
 		splashCard.hide();
 
-		itemList.update();
+		itemList.repopulate();
 		itemList.screen.show();
 	}
 }
@@ -92,6 +92,7 @@ function onStateLoaded(stats) {
 	}
 
 	itemList.update();
+	itemList.screen.show();
 }
 
 function initErrorCard() {
@@ -138,6 +139,7 @@ function trackAction(action, project, time) {
 		controller.errors[project] = [error, statusCode];
 
 		itemList.update();
+		itemList.screen.show();
 	});
 }
 
