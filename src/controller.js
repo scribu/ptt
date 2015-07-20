@@ -13,6 +13,7 @@ function Controller(getOption, trackAction) {
 	this.trackingTask = null;
 	this.startedOn = null;
 
+	this.isLoading = true;
 	this.errors = {};
 }
 
@@ -57,7 +58,7 @@ Controller.prototype = {
 			} else {
 				return JSON.stringify(error);
 			}
-		} else if (!this.secondsLogged) {
+		} else if (this.isLoading) {
 			return 'Loading...';
 		} else {
 			var seconds = this.secondsLogged[task] || 0;

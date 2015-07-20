@@ -31,6 +31,7 @@ describe('Controller', function() {
 	});
 
 	it('should show tracking status', function() {
+		controller.isLoading = false;
 		controller.secondsLogged = {'writing': 5 * 60};
 
 		controller.switchTask('reading');

@@ -115,6 +115,7 @@ function request(method, endpoint, data, onSuccess, onError) {
 }
 
 function onStateLoaded(stats) {
+	controller.isLoading = false;
 	controller.secondsLogged = stats.this_week;
 
 	if (stats.last_started) {
@@ -126,23 +127,30 @@ function onStateLoaded(stats) {
 	itemList.screen.show();
 }
 
+function onStateErrored(error, statusCode) {
+	controller.isLoading = false;
+
+	if (!errorCard) {
+		initErrorCard();
+	}
+
+	if (statusCode === 0) {
+		errorCard.subtitle('Incorrect backend URL.');
+	} else if (error.error === 'unauthorized') {
+		errorCard.subtitle('Authorization error.');
+	} else {
+		errorCard.subtitle('Server error.\nShake to retry.');
+	}
+
+	itemList.screen.hide();
+	errorCard.show();
+}
+
 function loadState() {
-	request('get', '/init', onStateLoaded, function(error, statusCode) {
-		if (!errorCard) {
-			initErrorCard();
-		}
+	request('get', '/init', onStateLoaded, onStateErrored);
 
-		if (statusCode === 0) {
-			errorCard.subtitle('Incorrect backend URL.');
-		} else if (error.error === 'unauthorized') {
-			errorCard.subtitle('Authorization error.');
-		} else {
-			errorCard.subtitle('Server error.\nShake to retry.');
-		}
-
-		itemList.screen.hide();
-		errorCard.show();
-	});
+	controller.isLoading = true;
+	itemList.update();
 }
 
 function trackAction(action, project, time) {
