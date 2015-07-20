@@ -1,3 +1,4 @@
+var RSVP = require('./rsvp.js');
 var Settings = require('settings');
 var UI = require('ui');
 var ajax = require('ajax');
@@ -11,7 +12,7 @@ function getOption(key) {
 	return Settings.option(key);
 }
 
-var controller = new Controller(getOption, trackAction);
+var controller = new Controller(getOption, request);
 var itemList;
 var splashCard, errorCard;
 
@@ -87,13 +88,7 @@ Settings.config(
 	onSettingsUpdated
 );
 
-function request(method, endpoint, data, onSuccess, onError) {
-	if (typeof data === 'function') {
-		onError = onSuccess;
-		onSuccess = data;
-		data = null;
-	}
-
+function request(method, endpoint, data) {
 	var options = {
 		url: Settings.option('backend_url') + endpoint,
 		headers: {'X-Auth-Key': Settings.data('auth_key')},
@@ -102,33 +97,23 @@ function request(method, endpoint, data, onSuccess, onError) {
 		data: data
 	};
 
-	ajax(options, onSuccess, function(error, statusCode, request) {
-		console.log(format('{} {} failed with status code {}: {}',
-			method.toUpperCase(),
-			options.url,
-			statusCode,
-			request.responseText
-		));
+	return new RSVP.Promise(function(resolve, reject) {
+		ajax(options, resolve, function(error, statusCode, request) {
+			console.log(format('{} {} failed with status code {}: {}',
+				method.toUpperCase(),
+				options.url,
+				statusCode,
+				request.responseText
+			));
 
-		onError(error, statusCode, request);
+			reject([error, statusCode, request]);
+		});
 	});
 }
 
-function onStateLoaded(stats) {
-	controller.isLoading = false;
-	controller.secondsLogged = stats.this_week;
-
-	if (stats.last_started) {
-		controller.trackingTask = stats.last_started.task;
-		controller.startedOn = stats.last_started.started;
-	}
-
-	itemList.update();
-	itemList.screen.show();
-}
-
-function onStateErrored(error, statusCode) {
-	controller.isLoading = false;
+function onStateErrored(args) {
+	var error = args[0];
+	var statusCode = args[1];
 
 	if (!errorCard) {
 		initErrorCard();
@@ -147,26 +132,16 @@ function onStateErrored(error, statusCode) {
 }
 
 function loadState() {
-	request('get', '/init', onStateLoaded, onStateErrored);
+	request('get', '/init')
+		.then(controller.onStateLoaded.bind(controller))
+		.catch(onStateErrored)
+		.finally(function() {
+			controller.isLoading = false;
+			itemList.update();
+		});
 
 	controller.isLoading = true;
 	itemList.update();
-}
-
-function trackAction(action, project, time) {
-	var payload = {
-		task: project,
-		time: time
-	};
-
-	delete controller.errors[project];
-
-	request('post', '/' + action, payload, onStateLoaded, function(error, statusCode) {
-		controller.errors[project] = [error, statusCode];
-
-		itemList.update();
-		itemList.screen.show();
-	});
 }
 
 Accel.init();

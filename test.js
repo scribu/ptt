@@ -2,6 +2,8 @@ var chai = require('chai');
 chai.config.includeStack = true;
 var assert = chai.assert;
 
+var RSVP = require('./src/rsvp.js');
+
 describe('secondsToTime', function() {
 	var secondsToTime = require('./src/utils.js').secondsToTime;
 
@@ -22,10 +24,19 @@ describe('Controller', function() {
 		return _options[key];
 	}
 
+	var response;
+	function request(method, endpoint, payload) {
+		return response.promise;
+	}
+
+	beforeEach(function() {
+		response = RSVP.defer();
+	});
+
 	var Controller = require('./src/controller.js');
 
 	_options.tasks = ['reading', 'writing'];
-	var controller = new Controller(getOption, function(){});
+	var controller = new Controller(getOption, request);
 
 	it('should show loading status', function() {
 		assert.equal('Loading...', controller.getStatus('writing'));
@@ -48,9 +59,33 @@ describe('Controller', function() {
 		assert.equal('Week: 1h', controller.getStatus('reading'));
 	});
 
-	it('should show errors', function() {
-		controller.errors['reading'] = ['<html>Internal server error', 500];
+	it('should handle the tracking transition', function() {
+		controller.switchTask('reading');
 
+		assert.isTrue(controller.savingTracking('reading'));
+
+		assert.equal('Week: 1h', controller.getStatus('reading'));
+
+		response.resolve({
+			this_week: {
+				reading: 3600 + 5*60,
+			}
+		});
+	});
+
+	it('should handle the tracking transition 2', function() {
+		assert.isFalse(controller.savingTracking('reading'));
+
+		assert.equal('Week: 1h 5m', controller.getStatus('reading'));
+	});
+
+	it('should show errors', function() {
+		controller.switchTask('reading');
+
+		response.reject(['<html>Internal server error', 500]);
+	});
+
+	it('should show errors 2', function() {
 		assert.equal('[Syncing error]', controller.getStatus('reading'));
 	});
 });

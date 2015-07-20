@@ -4,9 +4,9 @@ function now() {
 	return Date.now() / 1000;
 }
 
-function Controller(getOption, trackAction) {
+function Controller(getOption, request) {
 	this.getOption = getOption;
-	this.trackAction = trackAction;
+	this.request = request;
 
 	this.secondsLogged = null;
 
@@ -30,20 +30,68 @@ Controller.prototype = {
 		return this.trackingTask === task;
 	},
 
+	savingTracking: function(task) {
+		return this.savingTask === task;
+	},
+
+	onStateLoaded: function(stats) {
+		this.secondsLogged = stats.this_week;
+
+		if (stats.last_started) {
+			this.trackingTask = stats.last_started.task;
+			this.startedOn = stats.last_started.started;
+		}
+	},
+
+	_log: function(action, task, time) {
+		var promise = this.request('post', '/' + action, {
+			task: task,
+			time: time
+		});
+
+		return promise.then(this.onStateLoaded.bind(this));
+	},
+
+	_startTracking: function(task) {
+		this.trackingTask = task;
+		this.startedOn = now();
+		return this._log('start', task, this.startedOn);
+	},
+
+	_stopTracking: function(task) {
+		this.trackingTask = null;
+		this.savingTask = task;
+
+		var promise = this._log('stop', task, now());
+
+		var self = this;
+
+		promise.finally(function() {
+			self.savingTask = null;
+			self.startedOn = null;
+		});
+
+		return promise;
+	},
+
 	switchTask: function(task) {
-		var oldTask = this.trackingTask;
+		delete this.errors[task];
+
+		var promise;
 
 		if (this.isTracking(task)) {
-			this.trackingTask = null;
-			this.startedOn = null;
-			this.trackAction('stop', task, now());
+			promise = this._stopTracking(task);
 		} else {
-			this.trackingTask = task;
-			this.startedOn = now();
-			this.trackAction('start', task, this.startedOn);
+			promise = this._startTracking(task);
 		}
 
-		return oldTask;
+		var self = this;
+
+		promise.catch(function(args) {
+			self.errors[task] = args;
+		});
+
+		return promise;
 	},
 
 	getStatus: function(task) {
@@ -63,7 +111,7 @@ Controller.prototype = {
 		} else {
 			var seconds = this.secondsLogged[task] || 0;
 
-			if (this.isTracking(task)) {
+			if (this.isTracking(task) || this.savingTracking(task)) {
 				var elapsed = now() - this.startedOn;
 				seconds += elapsed;
 			}

@@ -227,7 +227,13 @@ ItemList.prototype = {
 
 		console.log('Selected ' + task);
 
-		var oldTask = this.controller.switchTask(task);
+		var oldTask = this.controller.trackingTask;
+
+		var self = this;
+
+		this.controller.switchTask(task).finally(function() {
+			self.update();
+		});
 
 		if (oldTask) {
 			var oldIndex = this.indexFromTask(oldTask);
