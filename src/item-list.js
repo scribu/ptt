@@ -66,8 +66,6 @@ Item.prototype = {
 
 		utils.mapObj(this.elems, function(key, elem) {
 			screen.add(elem);
-
-			console.log(utils.format('index {}: {} {}', that.task, key, elem.index()));
 		});
 	},
 
@@ -102,10 +100,6 @@ Item.prototype = {
 
 		var innerCircleColor = tracking ? textColor : boxColor;
 		this.elems.innerCircle.backgroundColor(innerCircleColor);
-
-		console.log(utils.format('{} outer circle: {}', this.task, this.elems.outerCircle.backgroundColor()));
-
-		console.log(utils.format('{} inner circle: {}', this.task, this.elems.innerCircle.backgroundColor()));
 
 		this.elems.box.backgroundColor(boxColor);
 	},
