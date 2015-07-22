@@ -70,7 +70,7 @@ jQuery(function($) {
 		return newTask;
 	}
 
-	var rawOptions = getQueryParam('options', 'null');
+	var rawOptions = decodeURIComponent(window.location.hash.substr(1));
 
 	try {
 		var options = JSON.parse(rawOptions) || {};
@@ -135,7 +135,7 @@ jQuery(function($) {
 		var returnTo = getQueryParam('return_to', 'pebblejs://close#');
 		var newUrl = returnTo + encodeURIComponent(JSON.stringify(options));
 
-		document.location = newUrl;
+		window.location = newUrl;
 	});
 });
 </script>
