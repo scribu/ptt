@@ -7,6 +7,23 @@
 <title>TT Settings</title>
 
 <link href="./vendor/bootstrap-3.5.5/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+.task button span {
+	font-family: monospace;
+}
+
+.task-alert input.form-control {
+	display: inline;
+	width: 4em;
+}
+
+.task-alert select.form-control {
+	display: inline;
+	width: auto;
+}
+</style>
+
 </head>
 <body>
 
@@ -34,18 +51,40 @@
 	</form>
 </div>
 
-<script type="text/html" id="task-template">
-	<div class="task form-group">
+<script type="text/x-handlebars-template" id="task-template">
+<div class="task">
+	<div class="form-group">
 		<div class="input-group">
-			<input type="text" class="form-control" placeholder="Task name..." />
+			<span class="input-group-btn">
+				{{#if limit}}
+					<button class="remove-alert btn btn-info"><span>-</span> alert</button>
+				{{else}}
+					<button class="add-alert btn btn-info"><span>+</span> alert</button>
+				{{/if}}
+			</span>
+
+			<input type="text" class="task-name form-control" placeholder="Task name..." value="{{name}}"/>
+
 			<span class="input-group-btn">
 				<button class="remove-task btn btn-danger">X</button>
 			</span>
 		</div><!-- /input-group -->
 	</div>
+
+	{{#if limit}}
+	<p class="task-alert">
+	  Alert after logging <input class="hours form-control" type="number" min=1 value="{{limit.hours}}"> hours in a
+	  <select class="period form-control">
+		<option selected>week</option>
+		<option>day</option>
+	  </select>.
+	</p>
+	{{/if}}
+</div>
 </script>
 
 <script type="text/javascript" src="./vendor/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="./vendor/handlebars-v3.0.3.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
 	function getQueryParam(variable, default_) {
@@ -59,13 +98,12 @@ jQuery(function($) {
 		return default_ || false;
 	}
 
-	var taskTemplate = $($('#task-template').text());
+	var taskTemplate = Handlebars.compile($('#task-template').html());
 
-	function createTask(taskName) {
-		var newTask = taskTemplate.clone();
+	function createTask(task) {
+		var newTask = $(taskTemplate(task));
 
 		newTask.appendTo($('#tasks'));
-		newTask.find('input').val(taskName);
 
 		return newTask;
 	}
@@ -87,15 +125,39 @@ jQuery(function($) {
 		$('#backend_url').val(options.backend_url);
 	}
 
-	$('form').on('click', '.remove-task', function() {
-		$(this).closest('.task').remove();
+	$('form').on('click', '.remove-task', function(e) {
+		$(e.target).closest('.task').remove();
 	});
 
 	$('#add-task').click(function(e) {
 		e.preventDefault();
 
-		var newTask = createTask('');
-		newTask.find('input').focus();
+		var newTask = createTask({name: '', limit: false});
+		newTask.find('.task-name').focus();
+	});
+
+	function _updateTask(e, cb) {
+		e.preventDefault();
+
+		var taskEl = $(e.target).closest('.task');
+
+		var task = collectTask(taskEl);
+
+		cb(task);
+
+		taskEl.replaceWith(taskTemplate(task));
+	}
+
+	$('form').on('click', '.remove-alert', function(e) {
+		_updateTask(e, function(task) {
+			task.limit = false;
+		});
+	});
+
+	$('form').on('click', '.add-alert', function(e) {
+		_updateTask(e, function(task) {
+			task.limit = {hours: '', period: 'week'};
+		});
 	});
 
 	$('form').on('keypress', 'input', function(e) {
@@ -107,12 +169,30 @@ jQuery(function($) {
 		}
 	});
 
+	function collectTask(taskEl) {
+		var task = {
+			name: taskEl.find('.task-name').val(),
+			limit: false
+		}
+
+		if (taskEl.find('.task-alert').length) {
+			task.limit = {
+				hours: parseInt(taskEl.find('.task-alert .hours').val(), 10),
+				period: taskEl.find('.task-alert .period :selected').text(),
+			}
+		}
+
+		return task;
+	}
+
 	function collectTasks() {
 		var tasks = [];
-		$('.task input').each(function() {
-			var name = $(this).val();
-			if (name !== '') {
-				tasks.push(name);
+
+		$('.task').each(function() {
+			var task = collectTask($(this));
+
+			if (task.name !== '') {
+				tasks.push(task);
 			}
 		});
 
